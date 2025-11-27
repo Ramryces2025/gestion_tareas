@@ -30,25 +30,27 @@ pipeline {
 
         stage('SonarQube analysis') {
             environment {
+                // SonarQube expuesto en el host en el puerto 9001
                 SONAR_HOST_URL = 'http://host.docker.internal:9001'
             }
             steps {
                 withCredentials([string(credentialsId: 'sonar-token-gestion', variable: 'SONAR_TOKEN')]) {
                     sh '''
                         docker run --rm \
-                          --network bridge \
-                          -e SONAR_HOST_URL=$SONAR_HOST_URL \
-                          -e SONAR_LOGIN=$SONAR_TOKEN \
-                          -v "$PWD":/usr/src \
-                          sonarsource/sonar-scanner-cli \
-                          -Dsonar.projectKey=gestion_tareas \
-                          -Dsonar.sources=. \
-                          -Dsonar.tests=tests \
-                          -Dsonar.python.version=3.13
+                        -e SONAR_HOST_URL=$SONAR_HOST_URL \
+                        -e SONAR_TOKEN=$SONAR_TOKEN \
+                        -v "$PWD":/usr/src \
+                        sonarsource/sonar-scanner-cli \
+                        -Dsonar.projectKey=gestion_tareas \
+                        -Dsonar.sources=. \
+                        -Dsonar.tests=tests \
+                        -Dsonar.python.version=3.13 \
+                        -Dsonar.token=$SONAR_TOKEN
                     '''
                 }
             }
         }
+
 
         stage('Build docker image') {
             steps {
@@ -60,11 +62,11 @@ pipeline {
             steps {
                 sh '''
                     cat > build_info.txt <<EOF
-Build: ${BUILD_NUMBER}
-Git commit: ${GIT_COMMIT:-unknown}
-Branch: ${GIT_BRANCH:-unknown}
-Built image: gestion_tareas:latest
-EOF
+                    Build: ${BUILD_NUMBER}
+                    Git commit: ${GIT_COMMIT:-unknown}
+                    Branch: ${GIT_BRANCH:-unknown}
+                    Built image: gestion_tareas:latest
+                    EOF
                 '''
                 archiveArtifacts artifacts: 'test-results.xml, build_info.txt', fingerprint: true
             }
