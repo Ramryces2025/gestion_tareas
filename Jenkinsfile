@@ -76,6 +76,8 @@ pipeline {
         stage('Trivy scan') {
             steps {
                 sh '''
+                    set -euo pipefail
+                    REPORT=/workspace/trivy-report.txt
                     docker run --rm \
                       -v /var/run/docker.sock:/var/run/docker.sock \
                       -v "${WORKSPACE}:/workspace" \
@@ -84,8 +86,13 @@ pipeline {
                       --exit-code 0 \
                       --severity CRITICAL,HIGH \
                       --format table \
-                      -o trivy-report.txt \
+                      -o "${REPORT}" \
                       gestion_tareas:latest
+                    if [ ! -f "${REPORT}" ]; then
+                      echo "Trivy report not found at ${REPORT}" >&2
+                      ls -la /workspace || true
+                      exit 1
+                    fi
                 '''
             }
         }
