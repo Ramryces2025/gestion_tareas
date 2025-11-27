@@ -73,6 +73,23 @@ pipeline {
             }
         }
 
+        stage('Trivy scan') {
+            steps {
+                sh '''
+                    docker run --rm \
+                      -v /var/run/docker.sock:/var/run/docker.sock \
+                      -v "${WORKSPACE}:/workspace" \
+                      -w /workspace \
+                      aquasec/trivy:latest image \
+                      --exit-code 0 \
+                      --severity CRITICAL,HIGH \
+                      --format table \
+                      -o trivy-report.txt \
+                      gestion_tareas:latest
+                '''
+            }
+        }
+
         stage('Push docker image') {
             when {
                 expression { return params.PUSH_TO_DOCKERHUB }
@@ -105,6 +122,7 @@ pipeline {
                     EOF
                 '''
                 archiveArtifacts artifacts: 'test-results.xml, build_info.txt', fingerprint: true
+                archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true, allowEmptyArchive: true
             }
         }
     }
