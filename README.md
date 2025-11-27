@@ -18,3 +18,8 @@ Pequena API de gestion de tareas en memoria usando FastAPI, con endpoints basico
 
 ## Pruebas
 Ejecutar `python -m pytest -q` para correr la suite automatizada.
+
+### Calidad y seguridad (pipeline)
+- **Pytest**: el Jenkinsfile levanta un entorno virtual, instala dependencias y ejecuta `pytest --junitxml=test-results.xml`; el reporte JUnit se publica como resultado de pruebas.
+- **SonarQube**: analiza codigo y tests (`sonar.sources=.` y `sonar.tests=tests`) para obtener reportes de calidad.
+- **Trivy**: tras construir la imagen, la escanea por vulnerabilidades (HIGH/CRITICAL) y guarda `trivy-report.json` como artefacto.
