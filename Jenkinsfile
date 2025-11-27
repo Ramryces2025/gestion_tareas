@@ -1,8 +1,8 @@
 pipeline {
     agent any
     parameters {
-        booleanParam(name: 'PUSH_TO_DOCKERHUB', defaultValue: false, description: 'Push image to Docker Hub (requires credentials)')
-        string(name: 'DOCKERHUB_USERNAME', defaultValue: '', description: 'Docker Hub username (used only when pushing)')
+        booleanParam(name: 'PUSH_TO_DOCKERHUB', defaultValue: false, description: 'Hacer push de la imagen a Docker Hub (requiere credenciales)')
+        string(name: 'DOCKERHUB_USERNAME', defaultValue: '', description: 'Usuario de Docker Hub (solo se usa al hacer push)')
     }
     environment {
         PYTHONPATH = "${WORKSPACE}"
@@ -40,10 +40,6 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonar-token-gestion', variable: 'SONAR_TOKEN')]) {
                     sh '''
                         SONAR_BASE="${WORKSPACE}"
-                        echo "Listing contents before Sonar (host):"
-                        ls -la "${SONAR_BASE}" || true
-                        ls -la "${SONAR_BASE}/tests" || true
-
                         docker run --rm --entrypoint "" \
                         --volumes-from $(hostname) \
                         --user 0:0 \
@@ -51,7 +47,7 @@ pipeline {
                         -e SONAR_TOKEN=$SONAR_TOKEN \
                         -w "${SONAR_BASE}" \
                         sonarsource/sonar-scanner-cli \
-                        sh -c "ls -la ${SONAR_BASE} && ls -la ${SONAR_BASE}/tests || true && sonar-scanner \
+                        sh -c "sonar-scanner \
                         -Dsonar.projectKey=gestion_tareas \
                         -Dsonar.projectBaseDir=${SONAR_BASE} \
                         -Dsonar.sources=. \
@@ -89,7 +85,7 @@ pipeline {
                     --format table \
                     gestion_tareas:latest | tee "${TXT_REPORT}"
 
-                    # 2) Reporte en JSON (para integraciones / análisis posterior)
+                    # 2) Reporte en JSON (para integraciones / analisis posterior)
                     docker run --rm \
                     -v /var/run/docker.sock:/var/run/docker.sock \
                     aquasec/trivy:latest image \
@@ -98,7 +94,6 @@ pipeline {
                     --format json \
                     gestion_tareas:latest > "${JSON_REPORT}"
 
-                    ls -la "${WORKSPACE}"
                 '''
             }
         }
