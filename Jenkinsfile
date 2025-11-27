@@ -5,7 +5,12 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 sh '''
-                    python3 -m venv venv
+                    PYTHON=$(command -v python3 || command -v python)
+                    if [ -z "$PYTHON" ]; then
+                      echo "Python is required on the Jenkins agent." >&2
+                      exit 1
+                    fi
+                    $PYTHON -m venv venv
                     . venv/bin/activate
                     pip install --upgrade pip
                     pip install -r requirements.txt
