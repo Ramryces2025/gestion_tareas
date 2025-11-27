@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 
 
@@ -50,3 +51,8 @@ def delete_task(task_id: int) -> dict[str, str]:
             _tasks.pop(index)
             return {"detail": "Task deleted"}
     raise HTTPException(status_code=404, detail="Task not found")
+
+
+@app.get("/")
+def root() -> RedirectResponse:
+    return RedirectResponse(url="/docs")

@@ -8,13 +8,13 @@ Pequena API de gestion de tareas en memoria usando FastAPI, con endpoints basico
 
 ## Ejecutar el servicio
 1) Instalar dependencias: `pip install -r requirements.txt`
-2) Levantar en local con recarga: `uvicorn main:app --host 0.0.0.0 --port 8000 --reload`
-3) Documentacion interactiva (Swagger): `http://localhost:8000/docs`
+2) Levantar en local con recarga: `uvicorn main:app --host 0.0.0.0 --port 8005 --reload`
+3) Documentacion interactiva (Swagger): `http://localhost:8005/docs`
 
 ### Docker (hot reload montando el codigo)
 - `docker build -t gestion_tareas .`
-- En Windows PowerShell: `docker run -p 8000:8000 -v "$PWD:/app" gestion_tareas`
-- En Linux/macOS: `docker run -p 8000:8000 -v "$(pwd):/app" gestion_tareas`
+- En Windows PowerShell: `docker run --name gestion_app -p 8005:8000 -v "${PWD}:/app" gestion_tareas`
+- En Linux/macOS: `docker run --name gestion_app -p 8005:8005 -v "$(pwd):/app" gestion_tareas`
 
 ## Pruebas
 Ejecutar `python -m pytest -q` para correr la suite automatizada.
