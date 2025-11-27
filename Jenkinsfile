@@ -1,10 +1,13 @@
 pipeline {
     agent any
-    environment {
-        PYTHONPATH = "${WORKSPACE}"
-    }
 
     stages {
+        stage('Checkout') {
+            steps {
+                git url: 'https://github.com/Ramryces2025/gestion_tareas.git', branch: 'main'
+            }
+        }
+
         stage('Install dependencies') {
             steps {
                 sh '''
