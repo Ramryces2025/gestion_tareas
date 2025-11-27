@@ -28,6 +28,28 @@ pipeline {
             }
         }
 
+        stage('SonarQube analysis') {
+            environment {
+                SONAR_HOST_URL = 'http://sonarqube:9000'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'sonar-token-gestion', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        docker run --rm \
+                          --network bridge \
+                          -e SONAR_HOST_URL=$SONAR_HOST_URL \
+                          -e SONAR_LOGIN=$SONAR_TOKEN \
+                          -v "$PWD":/usr/src \
+                          sonarsource/sonar-scanner-cli \
+                          -Dsonar.projectKey=gestion_tareas \
+                          -Dsonar.sources=. \
+                          -Dsonar.tests=tests \
+                          -Dsonar.python.version=3.13
+                    '''
+                }
+            }
+        }
+
         stage('Build docker image') {
             steps {
                 sh 'docker build -t gestion_tareas:latest .'
