@@ -23,13 +23,28 @@ pipeline {
 
         stage('Run tests') {
             steps {
-                sh '. venv/bin/activate && pytest -q'
+                sh '. venv/bin/activate && pytest --junitxml=test-results.xml'
+                junit 'test-results.xml'
             }
         }
 
         stage('Build docker image') {
             steps {
                 sh 'docker build -t gestion_tareas:latest .'
+            }
+        }
+
+        stage('Package artifacts') {
+            steps {
+                sh '''
+                    cat > build_info.txt <<EOF
+Build: ${BUILD_NUMBER}
+Git commit: ${GIT_COMMIT:-unknown}
+Branch: ${GIT_BRANCH:-unknown}
+Built image: gestion_tareas:latest
+EOF
+                '''
+                archiveArtifacts artifacts: 'test-results.xml, build_info.txt', fingerprint: true
             }
         }
     }
