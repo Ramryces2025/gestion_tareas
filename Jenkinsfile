@@ -30,7 +30,7 @@ pipeline {
 
         stage('SonarQube analysis') {
             environment {
-                SONAR_HOST_URL = 'http://sonarqube:9000'
+                SONAR_HOST_URL = 'http://host.docker.internal:9001'
             }
             steps {
                 withCredentials([string(credentialsId: 'sonar-token-gestion', variable: 'SONAR_TOKEN')]) {
