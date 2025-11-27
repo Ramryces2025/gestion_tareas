@@ -38,7 +38,8 @@ pipeline {
                         docker run --rm \
                         -e SONAR_HOST_URL=$SONAR_HOST_URL \
                         -e SONAR_TOKEN=$SONAR_TOKEN \
-                        -v "$PWD":/usr/src \
+                        -v "${WORKSPACE}":/usr/src \
+                        -w /usr/src \
                         sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=gestion_tareas \
                         -Dsonar.projectBaseDir=/usr/src \
