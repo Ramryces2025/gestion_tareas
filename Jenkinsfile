@@ -77,24 +77,32 @@ pipeline {
             steps {
                 sh '''
                     set -euo pipefail
-                    REPORT="${WORKSPACE}/trivy-report.json"
+                    JSON_REPORT="${WORKSPACE}/trivy-report.json"
+                    TXT_REPORT="${WORKSPACE}/trivy-report.txt"
+
+                    # 1) Reporte legible en tabla 
                     docker run --rm \
-                      -v /var/run/docker.sock:/var/run/docker.sock \
-                      -v "${WORKSPACE}:${WORKSPACE}" \
-                      -w "${WORKSPACE}" \
-                      aquasec/trivy:latest image \
-                      --exit-code 0 \
-                      --severity CRITICAL,HIGH \
-                      --format json \
-                      gestion_tareas:latest | tee "${REPORT}"
-                    if [ ! -f "${REPORT}" ]; then
-                      echo "Trivy report not found at ${REPORT}" >&2
-                      ls -la "${WORKSPACE}" || true
-                      exit 1
-                    fi
+                    -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy:latest image \
+                    --exit-code 0 \
+                    --severity CRITICAL,HIGH \
+                    --format table \
+                    gestion_tareas:latest | tee "${TXT_REPORT}"
+
+                    # 2) Reporte en JSON (para integraciones / análisis posterior)
+                    docker run --rm \
+                    -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy:latest image \
+                    --exit-code 0 \
+                    --severity CRITICAL,HIGH \
+                    --format json \
+                    gestion_tareas:latest > "${JSON_REPORT}"
+
+                    ls -la "${WORKSPACE}"
                 '''
             }
         }
+
 
         stage('Push docker image') {
             when {
@@ -128,9 +136,10 @@ pipeline {
                     EOF
                 '''
                 archiveArtifacts artifacts: 'test-results.xml, build_info.txt', fingerprint: true
-                archiveArtifacts artifacts: 'trivy-report.txt', fingerprint: true, allowEmptyArchive: true
+                archiveArtifacts artifacts: 'trivy-report.txt, trivy-report.json', fingerprint: true, allowEmptyArchive: true
             }
         }
+
     }
 
     post {
