@@ -86,8 +86,7 @@ pipeline {
                       --exit-code 0 \
                       --severity CRITICAL,HIGH \
                       --format table \
-                      -o "${REPORT}" \
-                      gestion_tareas:latest
+                      gestion_tareas:latest | tee "${REPORT}"
                     if [ ! -f "${REPORT}" ]; then
                       echo "Trivy report not found at ${REPORT}" >&2
                       ls -la "${WORKSPACE}" || true
