@@ -14,7 +14,7 @@ Pequena API de gestion de tareas en memoria usando FastAPI, con endpoints basico
 ### Docker (hot reload montando el codigo)
 - `docker build -t gestion_tareas .`
 - En Windows PowerShell: `docker run --name gestion_app -p 8005:8000 -v "${PWD}:/app" gestion_tareas`
-- En Linux/macOS: `docker run --name gestion_app -p 8005:8005 -v "$(pwd):/app" gestion_tareas`
+- En Linux/macOS: `docker run --name gestion_app -p 8005:8000 -v "$(pwd):/app" gestion_tareas`
 
 ## Pruebas
 Ejecutar `python -m pytest -q` para correr la suite automatizada.
