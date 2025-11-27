@@ -77,11 +77,11 @@ pipeline {
             steps {
                 sh '''
                     set -euo pipefail
-                    REPORT=/workspace/trivy-report.txt
+                    REPORT="${WORKSPACE}/trivy-report.txt"
                     docker run --rm \
                       -v /var/run/docker.sock:/var/run/docker.sock \
-                      -v "${WORKSPACE}:/workspace" \
-                      -w /workspace \
+                      -v "${WORKSPACE}:${WORKSPACE}" \
+                      -w "${WORKSPACE}" \
                       aquasec/trivy:latest image \
                       --exit-code 0 \
                       --severity CRITICAL,HIGH \
@@ -90,7 +90,7 @@ pipeline {
                       gestion_tareas:latest
                     if [ ! -f "${REPORT}" ]; then
                       echo "Trivy report not found at ${REPORT}" >&2
-                      ls -la /workspace || true
+                      ls -la "${WORKSPACE}" || true
                       exit 1
                     fi
                 '''
