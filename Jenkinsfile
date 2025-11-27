@@ -2,6 +2,7 @@ pipeline {
     agent any
     parameters {
         booleanParam(name: 'PUSH_TO_DOCKERHUB', defaultValue: false, description: 'Push image to Docker Hub (requires credentials)')
+        string(name: 'DOCKERHUB_USERNAME', defaultValue: '', description: 'Docker Hub username (used only when pushing)')
     }
     environment {
         PYTHONPATH = "${WORKSPACE}"
@@ -79,13 +80,15 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-pat', variable: 'DOCKERHUB_TOKEN')]) {
                     sh '''
-                        if [ -z "$DOCKERHUB_USERNAME" ]; then
-                          echo "Set DOCKERHUB_USERNAME as a global/env variable in Jenkins." >&2
+                        set -euo pipefail
+                        IMAGE_NAME=gestion_tareas
+                        if [ -z "${DOCKERHUB_USERNAME:-}" ]; then
+                          echo "Debe definir DOCKERHUB_USERNAME (parametro del pipeline) para poder hacer push." >&2
                           exit 1
                         fi
                         echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-                        docker tag gestion_tareas:latest "$DOCKERHUB_USERNAME/gestion_tareas:latest"
-                        docker push "$DOCKERHUB_USERNAME/gestion_tareas:latest"
+                        docker tag ${IMAGE_NAME}:latest "$DOCKERHUB_USERNAME/${IMAGE_NAME}:latest"
+                        docker push "$DOCKERHUB_USERNAME/${IMAGE_NAME}:latest"
                     '''
                 }
             }
