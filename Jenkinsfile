@@ -36,6 +36,9 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonar-token-gestion', variable: 'SONAR_TOKEN')]) {
                     sh '''
                         SONAR_BASE=/usr/src
+                        echo "Listing contents before Sonar:"
+                        ls -la "${WORKSPACE}" || true
+                        ls -la "${WORKSPACE}/tests" || true
                         docker run --rm \
                         -e SONAR_HOST_URL=$SONAR_HOST_URL \
                         -e SONAR_TOKEN=$SONAR_TOKEN \
@@ -44,8 +47,9 @@ pipeline {
                         sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=gestion_tareas \
                         -Dsonar.projectBaseDir=${SONAR_BASE} \
-                        -Dsonar.sources=${SONAR_BASE} \
-                        -Dsonar.tests=${SONAR_BASE}/tests \
+                        -Dsonar.sources=. \
+                        -Dsonar.tests=. \
+                        -Dsonar.test.inclusions=tests/** \
                         -Dsonar.python.version=3.13 \
                         -Dsonar.token=$SONAR_TOKEN
                     '''
