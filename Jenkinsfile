@@ -35,16 +35,16 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonar-token-gestion', variable: 'SONAR_TOKEN')]) {
                     sh '''
-                        SONAR_BASE=/usr/src
+                        SONAR_BASE="${WORKSPACE}"
                         echo "Listing contents before Sonar (host):"
-                        ls -la "${WORKSPACE}" || true
-                        ls -la "${WORKSPACE}/tests" || true
+                        ls -la "${SONAR_BASE}" || true
+                        ls -la "${SONAR_BASE}/tests" || true
 
                         docker run --rm --entrypoint "" \
+                        --volumes-from $(hostname) \
                         -e SONAR_HOST_URL=$SONAR_HOST_URL \
                         -e SONAR_TOKEN=$SONAR_TOKEN \
-                        -v "${WORKSPACE}":${SONAR_BASE} \
-                        -w ${SONAR_BASE} \
+                        -w "${SONAR_BASE}" \
                         sonarsource/sonar-scanner-cli \
                         sh -c "ls -la ${SONAR_BASE} && ls -la ${SONAR_BASE}/tests || true && find ${SONAR_BASE} -maxdepth 2 -type f && sonar-scanner \
                         -Dsonar.projectKey=gestion_tareas \
