@@ -30,7 +30,6 @@ pipeline {
 
         stage('SonarQube analysis') {
             environment {
-                // SonarQube expuesto en el host en el puerto 9001
                 SONAR_HOST_URL = 'http://host.docker.internal:9001'
             }
             steps {
@@ -42,6 +41,7 @@ pipeline {
                         -v "$PWD":/usr/src \
                         sonarsource/sonar-scanner-cli \
                         -Dsonar.projectKey=gestion_tareas \
+                        -Dsonar.projectBaseDir=/usr/src \
                         -Dsonar.sources=. \
                         -Dsonar.tests=tests \
                         -Dsonar.python.version=3.13 \
@@ -50,6 +50,7 @@ pipeline {
                 }
             }
         }
+
 
 
         stage('Build docker image') {
