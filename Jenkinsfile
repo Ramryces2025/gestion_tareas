@@ -46,7 +46,7 @@ pipeline {
                         -e SONAR_TOKEN=$SONAR_TOKEN \
                         -w "${SONAR_BASE}" \
                         sonarsource/sonar-scanner-cli \
-                        sh -c "ls -la ${SONAR_BASE} && ls -la ${SONAR_BASE}/tests || true && find ${SONAR_BASE} -maxdepth 2 -type f && sonar-scanner \
+                        sh -c "ls -la ${SONAR_BASE} && ls -la ${SONAR_BASE}/tests || true && sonar-scanner \
                         -Dsonar.projectKey=gestion_tareas \
                         -Dsonar.projectBaseDir=${SONAR_BASE} \
                         -Dsonar.sources=. \
