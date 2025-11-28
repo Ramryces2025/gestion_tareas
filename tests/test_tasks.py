@@ -7,10 +7,12 @@ client = TestClient(app)
 
 
 def setup_function() -> None:
+    """Restablece el estado global antes de cada prueba."""
     reset_state()
 
 
 def test_create_task_returns_created_payload() -> None:
+    """Crear una tarea devuelve 201 y el payload esperado."""
     response = client.post("/tasks", json={"title": "Primera tarea"})
     assert response.status_code == 201
     data = response.json()
@@ -21,6 +23,7 @@ def test_create_task_returns_created_payload() -> None:
 
 
 def test_list_tasks_returns_all_created_tasks() -> None:
+    """Listar tareas devuelve todas las tareas creadas."""
     client.post("/tasks", json={"title": "Tarea 1"})
     client.post("/tasks", json={"title": "Tarea 2", "description": "Detalle"})
 
@@ -34,6 +37,7 @@ def test_list_tasks_returns_all_created_tasks() -> None:
 
 
 def test_delete_task_removes_item() -> None:
+    """Eliminar una tarea existente la remueve de la lista."""
     client.post("/tasks", json={"title": "Borrar esto"})
     client.post("/tasks", json={"title": "Mantener esto"})
 
@@ -47,6 +51,7 @@ def test_delete_task_removes_item() -> None:
 
 
 def test_delete_non_existent_task_returns_404() -> None:
+    """Eliminar una tarea inexistente devuelve 404 con el mensaje adecuado."""
     response = client.delete("/tasks/999")
     assert response.status_code == 404
     assert response.json() == {"detail": "Task not found"}

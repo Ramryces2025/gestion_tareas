@@ -27,7 +27,7 @@ pipeline {
 
         stage('Run tests') {
             steps {
-                sh '. venv/bin/activate && pytest --junitxml=test-results.xml'
+                sh '. venv/bin/activate && pytest -vv --junitxml=test-results.xml'
                 junit 'test-results.xml'
             }
         }
